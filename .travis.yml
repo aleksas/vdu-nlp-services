@@ -1,0 +1,19 @@
+language: python
+python:
+- '2.7'
+- '3.6'
+- '3.7'
+- nightly
+script:
+- pytest
+install:
+- pip install -r requirements.txt
+- python setup.py  build_ext --inplace
+deploy:
+  provider: pypi
+  user: aleksas
+  password:
+    secure: E59GMSbF6Lyz/V6xddIsgdhXjcqPWrGbzoHWYd6YeOuanJDKRYerRQ/FtojNcG5vsU2EErS0NE/uvYN9+MstEbM1I4k2ggiYlcwVxuqbH9/mK1LDglDnHQJXspu1aKx2GFtB47joAzkUSdGpPLEwUrltbGNVTaDzaMQ9HNbOJIWoUGtLgrVy7TwB5YR5rgp1fJba8NbMfX/V/O/FJd5X5wqBG7NeCXQtnevI8gmak4+ZFUlUo5QUsoGWNdPw0JuBm0jKf8Q6p+LnSConA4YsSugkQCKmkMX6lOi2eltsrUKoVHHr3dNSxC+B/tt0E9gOxrALTHxyVg5Z9LiTqEM3VYnaK2eVh+HlZekO8yRwmLF4+C1K/Urz6zGkKDZ1UinOVScnVhSxLe+xfu2wfuCUGYdY9XkPdJay3OyG/QFgUFlDoKKIJaLF0ltNmHmBo6iFOy9kreepAlMKzxZaS9dpYJRt67wSuCESqvAa38R/fZpGQ9NnQUeD0l237GKa/+Ppb8tVJftrInqedp3/gfqRWM05MSO3D6PNprkReAtQTkrUt80jbb6obPJmI/0f2LWWtQLrUNAgiXc7z3vsOOjlqHPxa7M+wOwKRSNQIx7BLMK9u309nbkQxoizgFEs8oeOmFx0V4np0jAEy5iHo601MM+SbBgrNJkKCIc5ELEnjq8=
+  on:
+    tags: true
+    python: 3.6
