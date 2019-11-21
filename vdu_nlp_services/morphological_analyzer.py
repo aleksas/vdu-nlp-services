@@ -8,24 +8,14 @@ import string
 re_tag = compile(r'<([^<>]+)/>')
 re_param = compile(r'([^ =]+)(="([^"]+)")?')
 
-def analyze_text(text):
+def alter_text(text):
     spec_set = set(u'-\n –')
     spec_chars_only = sub(u'[' + ''.join(set(text) - spec_set) + ']', '', text)
     altered_text = text.replace(u'–', '-').replace(u'\n', ' ')
-    
-    data = {
-        'tekstas': altered_text,
-        'tipas': 'anotuoti',
-        'pateikti': 'LM',
-        'veiksmas': 'Analizuoti'
-    }
+    return altered_text, spec_chars_only
 
-    response = post("http://donelaitis.vdu.lt/NLP/nlp.php", data)
-
-    if response.status_code != 200:
-        raise Exception(response.reason)
-
-    result = response.content.decode("utf-8")
+def process_response(response_content):
+    result = response_content.decode("utf-8")
 
     elements = []
     offset = 0
@@ -47,6 +37,23 @@ def analyze_text(text):
         elements.append(element)
     
     return elements
+
+def analyze_text(text):
+    altered_text, spec_chars_only = alter_text(text)
+    
+    data = {
+        'tekstas': altered_text,
+        'tipas': 'anotuoti',
+        'pateikti': 'LM',
+        'veiksmas': 'Analizuoti'
+    }
+
+    response = post("http://donelaitis.vdu.lt/NLP/nlp.php", data)
+
+    if response.status_code != 200:
+        raise Exception(response.reason)
+
+    return process_response(response.content)
 
 if __name__ == "__main__":
     print (analyze_text('laba\n–--–-diena'))
