@@ -14,7 +14,7 @@ def alter_text(text):
     altered_text = text.replace(u'–', '-').replace(u'\n', ' ')
     return altered_text, spec_chars_only
 
-def process_response(response_content):
+def process_response(response_content, spec_chars_only):
     result = response_content.decode("utf-8")
 
     elements = []
@@ -53,7 +53,7 @@ def analyze_text(text):
     if response.status_code != 200:
         raise Exception(response.reason)
 
-    return process_response(response.content)
+    return process_response(response.content, spec_chars_only)
 
 if __name__ == "__main__":
     print (analyze_text('laba\n–--–-diena'))
