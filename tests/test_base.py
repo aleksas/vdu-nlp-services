@@ -1,5 +1,5 @@
-from sys import path
-path.append('..')
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from unittest import TestCase, main
 from vdu_nlp_services import analyze_text, stress_text
