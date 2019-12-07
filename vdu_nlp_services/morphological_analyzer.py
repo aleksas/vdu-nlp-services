@@ -24,7 +24,7 @@ def process_response(response_content, exceptions):
         if 'sep' in element:
             if element['sep'] == '&10;':
                 element['sep'] = '\n'
-        if 'word' in element:
+        if 'word' in element and exceptions:
             for e in exceptions:
                 if 'sub' in e:
                     if element['word'] == e['sub'][0]:
@@ -69,16 +69,7 @@ def augment(text, elements):
         
     return auagmented_elements
 
-def validate(text, elements, augmented_elements):
-    recovered_text = ''
-    for e in augmented_elements:
-        for key in ['word', 'number', 'other']:
-            if key in e:
-                recovered_text += e[key]
-                
-    if recovered_text != text:
-        raise Exception()
-
+def validate(text, elements):
     offset = 0
     forward_spans = []
     for e in elements:
@@ -109,10 +100,20 @@ def validate(text, elements, augmented_elements):
     if forward_spans != list(reversed(backward_spans)):
         raise Exception()
 
-def analyze_text(text, exceptions):
+def validate_augmented(text, augmented_elements):
+    recovered_text = ''
+    for e in augmented_elements:
+        for key in ['word', 'number', 'other']:
+            if key in e:
+                recovered_text += e[key]
+                
+    if recovered_text != text:
+        raise Exception()
+
+def analyze_text(text, exceptions=None):
     altered_text = sub(u'[„“]', '"', text)
     altered_text = sub(u'–', '-', altered_text)
-    altered_text = sub(u'[^\.,?\'"\[\]\(\)!\-\+=0-9:;a-zA-Zą-žĄ-Ž]+', ' ', altered_text)
+    altered_text = sub(r'[^\.,?\'"\[\]\(\)!\-\+=0-9:;a-zA-Z' + u'ą-žĄ-Ž' + r']+', ' ', altered_text)
     altered_text = sub(u'(([a-zA-Zą-žĄ-Ž]+)([0-9]+))|(([0-9]+)([a-zA-Zą-žĄ-Ž]+))', r' \2 \3 \5 \6 ', altered_text)
     
     data = {
@@ -128,63 +129,9 @@ def analyze_text(text, exceptions):
         raise Exception(response.reason)
 
     elements = process_response(response.content, exceptions)
+    validate(text, elements)
 
     augmented_elements = augment(text, elements)
-    validate(text, elements, augmented_elements)
-    return elements
+    validate_augmented(text, augmented_elements)
 
-exceptions = [
-    {
-        'article_url': 'http://pakeliui.popo.lt/2019/01/23/apie-tikejima-ir-pasitikejima/',
-        'block_index': [4, 5, 7],
-        'sub': (u'Doubeyazt', u'Doğubeyazıt')
-    }, 
-    {
-        'article_url': 'http://pakeliui.popo.lt/2019/01/23/apie-tikejima-ir-pasitikejima/',
-        'block_index': [4, 5, 7],
-        'sub': (u'Doubeyazt', u'Doğubeyazıt')
-    }, 
-    {
-        'article_url': 'http://www.technologijos.lt/n/mokslas/istorija_ir_archeologija/S-77994/straipsnis/Radinys-naciu-stovykloje-irodo-tai-ka-politikai-bande-paneigti',
-        #'block_index': [2, 3, 8],
-        'sub': (u'Vaeka', u'Vařeka')
-    },
-    {
-        'article_url': 'http://www.technologijos.lt/n/mokslas/istorija_ir_archeologija/S-77994/straipsnis/Radinys-naciu-stovykloje-irodo-tai-ka-politikai-bande-paneigti',
-        #'block_index': [2, 3, 8],
-        'sub': (u'Vaekos', u'Vařekos')
-    },
-    {
-        'article_url': 'http://www.technologijos.lt/n/mokslas/idomusis_mokslas/S-77663/straipsnis/Skaiciavimo-masinu-istorija-kur-yra-pati-silpniausia-daugumos-siuolaikiniu-procesoriu-vieta-kaip-atsirado-ir-kas-negerai-su-voniNeumanno-architektura-ir-ka-tokio-ekspertai-surado-Intel-procesoriuose-',
-        #'block_index': [2, 3, 8],
-        'sub': (u'Erds', u'Erdős')
-    }
-]
-
-
-
-if __name__ == "__main__":
-    #print (analyze_text('laba\n–--–-diena'))
-    #print (analyze_text('Laba diena–draugai!\nKaip\njums -sekasi? Vienas, du, trys.'))
-    #print (analyze_text('namo'))
-    #print (analyze_text('Šioje vietoje trūksta namo!'))
-    #print (analyze_text('Einam namo. Nerandu namo.'))
-
-    conn = sqlite3.connect('data3.sqlite.db')
-    cursor = conn.cursor()
-
-    for i, exception in enumerate(exceptions):
-        cursor.execute('SELECT id FROM articles WHERE `url` = ?', (exception['article_url'],))
-        for res in cursor:
-            if 'article_id' not in exceptions[i]:
-                exceptions[i]['article_id'] = []
-            exceptions[i]['article_id'].append(res[0])
-
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id > 19420')
-
-    for article_id, index, block, url in cursor:
-        print (article_id, index)
-        exc_ = [e for e in exceptions if article_id in e['article_id']]
-        analyze_text(block, exc_)
-
-    conn.close()
+    return elements, augmented_elements
