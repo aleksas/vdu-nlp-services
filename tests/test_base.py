@@ -15,7 +15,7 @@ class SimpleTestCase(TestCase):
     def test_3(self):
         analyze_text(u'Laba diena–draugai!\nKaip\njums -sekasi? Vienas, du, trys.')
 
-    def test_4(self):
+    def test_4(self):h
         analyze_text(u'namo')
 
     def test_5(self):
