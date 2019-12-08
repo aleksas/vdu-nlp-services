@@ -13,7 +13,9 @@ _morph2opt_same = [
     'įvardž.', 'neįvardž.',
     'sngr.', 'nesngr.',
     'reik.',
-    'dll.',
+    'dll.', 
+    'būdn.',
+    'kuopin.',
     'dvisk.'
 ]
 
@@ -24,6 +26,7 @@ _morph2opt_missing = [
     'rom. sk.',
     'tar. n.', 'liep. n.',
     'daugin.',
+    'idPS', #post scritum
     'nežinomas'
 ]
 
@@ -104,19 +107,19 @@ def localize_stressed_text(stressed_text, augmented_elemetns):
 
     return res
 
-def fused_stress_text(text, exceptions=None, stress_selector=_stress_selector):
+def fused_stress_replacents(text, exceptions=None, stress_selector=_stress_selector):
     _, augmented_elements = analyze_text(text, exceptions=exceptions)
-    res = {}
+    replacements = {}
 
     for i, element in enumerate(augmented_elements):
         if 'word' in element:
             stress_options = get_word_stress_options(element['word'])
             selected_stress = stress_selector(element['type'], stress_options)
             if selected_stress:
-                res[i] = selected_stress[0]
+                replacements[i] = selected_stress[0]
             else:
-                res[i] = element['word']
-    return res, augmented_elements
+                replacements[i] = element['word']
+    return replacements, augmented_elements
 
 def rebuild_text(augmented_elements, replacements=None):
     text = u''
@@ -134,6 +137,10 @@ def rebuild_text(augmented_elements, replacements=None):
             raise NotImplementedError()
     
     return text
+
+def fused_stress_text(text, exceptions=None):
+    replacements, augmented_elements = fused_stress_replacents(text, exceptions)
+    return rebuild_text(augmented_elements, replacements)
 
 def compare_replacements(replacements_maps):
     comparison_replacements = {}
@@ -254,21 +261,24 @@ if __name__ == "__main__":
                 exceptions[i]['article_id'] = []
             exceptions[i]['article_id'].append(res[0])
 
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id > 33')
+    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id > 178')
 
     for article_id, index, block, url in cursor:
+        if not block:
+            continue
+
         exc_ = [e for e in exceptions if article_id in e['article_id']]
-        fused_replacements, augmented_elements = fused_stress_text(block, exc_)
+        fused_replacements, augmented_elements = fused_stress_replacents(block, exc_)
         fused_stressed_text = rebuild_text(augmented_elements, fused_replacements)
         stressed_text = stress_text(block)
         localizations = localize_stressed_text(stressed_text, augmented_elements)
 
         comparison_replacements, has_inequalities = compare_replacements([fused_replacements, localizations])
 
+        print (article_id, index)
         if has_inequalities:
             rebuilt_text = rebuild_text(augmented_elements, comparison_replacements)
             
-            print (article_id, index)
             print ()
             print (block)
             print ()
