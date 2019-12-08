@@ -14,31 +14,33 @@ _morph2opt_same = [
     'sngr.', 'nesngr.',
     'reik.',
     'dll.',
+    'dvisk.'
 ]
 
 _morph2opt_missing = [
     'teig.', 'neig.', 'teig',
     'aukšt. l.', 'aukšč. l.',
-    'sutr.', 'akronim.',
+    'sutr.', 'akronim.','dvisk.',
     'rom. sk.',
     'tar. n.', 'liep. n.',
+    'daugin.',
     'nežinomas'
 ]
 
 _morph2opt = {
-    'mot. g.': 'mot.gim.', 'vyr. g.': 'vyr.gim.', 'bev. g.':'bevrd.gim.',
+    'mot. g.': 'mot.gim.', 'vyr. g.': 'vyr.gim.', 'bev. g.':'bevrd.gim.', 'bendr. g.':'bendr.gim.',
     'vns.': 'vnsk.', 'dgs.': 'dgsk.',
     'dkt.': 'dktv.', 'bdv.': 'bdvr.', 'prv.': 'prvks.', 'įv.': 'įvrd.',
     'bendr.': ['vksm.', 'bendr.'],
     'pusd.': 'psdlv.',
     'prl.': 'prln.', 'idprl.': 'prln.',
     'pad.': 'padlv.',
-    'jng.': 'jngt.',
+    'jng.': 'jngt.', 'idjng.': 'jngt.',
     'išt.':'ištk.',
     'es. l.': 'esam.l.', 'būt. l.':'būt.l.', 'būt. k. l.': 'būt.kart.l.', 'būt. d. l.':'būt.d.l.', 'būs. l.':'būs.l.',
     '1 asm.': 'Iasm.', '2 asm.': 'IIasm.', '3 asm.': 'IIIasm.',
     'kiek.': 'kiekin.', 'kelint.' : 'kelintin.',    
-    'veik. r': 'veik.r.', 'neveik. r': 'neveik.r.',
+    'veik. r': 'veik.r.', 'neveik. r': 'neveik.r.', 'veik. r.': 'veik.r.',
     'tikr. dkt.': ['dktv.', 'T.'],
 
     **{k:k for k in _morph2opt_same},
@@ -81,28 +83,85 @@ def _stress_selector(annotated_type, stress_options):
         sorted_stressed_words = sorted(stressed_words.items(), key=lambda kv: kv[1], reverse=True)
         return sorted_stressed_words[0]
 
+def localize_stressed_text(stressed_text, augmented_elemetns):
+    offset = 0
+    res = {}
+    for i, ae in enumerate(augmented_elemetns):
+        if 'word' in ae:
+            pattern = ''.join( [ l + r'[`^~]?' for l in ae['word'] ] )
+            m = re.search(pattern, stressed_text[offset:])
+            if m:
+                res[i] = m.group(0) #(m.span()[0] + offset, m.span()[1] + offset)
+                offset += m.span()[1]
+            else:
+                raise Exception()
+        elif 'number' in ae:
+            m = re.search(ae['number'], stressed_text[offset:])
+            if m:
+                offset += m.span()[1]
+            else:
+                raise Exception()
+
+    return res
+
 def fused_stress_text(text, exceptions=None, stress_selector=_stress_selector):
     _, augmented_elements = analyze_text(text, exceptions=exceptions)
-    stressed_text = u''
+    res = {}
 
-    for element in augmented_elements:
+    for i, element in enumerate(augmented_elements):
         if 'word' in element:
-            word = element['word']
-            stress_options = get_word_stress_options(word)
-
+            stress_options = get_word_stress_options(element['word'])
             selected_stress = stress_selector(element['type'], stress_options)
             if selected_stress:
-                stressed_text += selected_stress[0]
+                res[i] = selected_stress[0]
             else:
-                stressed_text += word            
+                res[i] = element['word']
+    return res, augmented_elements
+
+def rebuild_text(augmented_elements, replacements=None):
+    text = u''
+    for i, element in enumerate(augmented_elements):
+        if 'word' in element:
+            if replacements and i in replacements:
+                text += replacements[i]
+            else:
+                text += element['word']
         elif 'number' in element:
-            stressed_text += str(element['number'])
+            text += str(element['number'])
         elif 'other' in element:
-            stressed_text += str(element['other'])
+            text += str(element['other'])
         else:
             raise NotImplementedError()
     
-    return stressed_text
+    return text
+
+def compare_replacements(replacements_maps):
+    comparison_replacements = {}
+    has_inequalities = False
+    keys = set([])
+    for replacements in replacements_maps:
+        keys = keys.union(set(replacements.keys()))
+    
+    for k in keys:
+        equal = True
+        value = None
+        for replacements in replacements_maps:
+            if k not in replacements:
+                equal = False
+                break
+            if not value:
+                value = replacements[k]
+            if value != replacements[k]:
+                equal = False
+                break
+
+        if equal:
+            comparison_replacements[k] = value
+        else:
+            has_inequalities = True
+            comparison_replacements[k] = '|| ' + ' <> '.join([(replacements[k] if k in replacements else ' ') for replacements in replacements_maps ]) + ' ||'
+    
+    return comparison_replacements, has_inequalities
 
 '''for bi, annotated in enumerate(block.get_annotated()):
     elif isinstance(annotated, AnnotatedWord):
@@ -159,7 +218,7 @@ exceptions = [
 ]
 
 if __name__ == "__main__":
-    strings = [
+    '''strings = [
         'Kiti ekspertai sako, kad pasikeitę prekybos keliai ir vidiniai nesutarimai galėjo privesti milžinišką ir galingą civilizaciją prie išnykimo.',
         'Dėl to galėjo būti kalti patys majai.',
         'A. Hitleriui buvo paskirti sargybiniai ir uždėta neperšaunama liemenė.',
@@ -179,9 +238,11 @@ if __name__ == "__main__":
 
     for s in strings:
         print ( s )
-        print (fused_stress_text(s))
+        replacements, augmented_elements = fused_stress_text(s)
+        fused_text = rebuild_text(augmented_elements, replacements)
+        print ( fused_text )
         print ( stress_text(s) )
-        print (  )
+        print (  )'''
 
     conn = sqlite3.connect('data3.sqlite.db')
     cursor = conn.cursor()
@@ -193,19 +254,25 @@ if __name__ == "__main__":
                 exceptions[i]['article_id'] = []
             exceptions[i]['article_id'].append(res[0])
 
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id > 8')
+    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id > 33')
 
     for article_id, index, block, url in cursor:
-        print (article_id, index, block)
         exc_ = [e for e in exceptions if article_id in e['article_id']]
-        fused_stressed_text = fused_stress_text(block, exc_)
+        fused_replacements, augmented_elements = fused_stress_text(block, exc_)
+        fused_stressed_text = rebuild_text(augmented_elements, fused_replacements)
         stressed_text = stress_text(block)
-        
-        for a,b in zip(fused_stressed_text.split(), stressed_text.split()):
-            if a != b:
-                print ("|| %s | %s ||" % (a, b), end=' ')
-            else:
-                print (a, end=' ')
+        localizations = localize_stressed_text(stressed_text, augmented_elements)
+
+        comparison_replacements, has_inequalities = compare_replacements([fused_replacements, localizations])
+
+        if has_inequalities:
+            rebuilt_text = rebuild_text(augmented_elements, comparison_replacements)
+            
+            print (article_id, index)
+            print ()
+            print (block)
+            print ()
+            print (rebuilt_text)
                 
         print ('\n=====================')
 
