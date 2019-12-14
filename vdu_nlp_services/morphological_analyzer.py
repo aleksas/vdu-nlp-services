@@ -129,9 +129,9 @@ def analyze_text(text, exceptions=None):
         raise Exception(response.reason)
 
     elements = process_response(response.content, exceptions)
-    validate(text, elements)
+    #validate(text, elements)
 
     augmented_elements = augment(text, elements)
-    validate_augmented(text, augmented_elements)
+    #validate_augmented(text, augmented_elements)
 
     return elements, augmented_elements
