@@ -5,16 +5,15 @@ from requests import post
 from re import compile, sub, search, finditer, findall
 import string 
 import sqlite3
+from hashlib import sha1
 
 re_tag = compile(r'<([^<>]+)/>')
 re_param = compile(r'([^ =]+)(="([^"]+)")?')
 
 def process_response(response_content, exceptions):
-    result = response_content.decode("utf-8")
-
     elements = []
 
-    for i, tag in enumerate(re_tag.finditer(result)):
+    for i, tag in enumerate(re_tag.finditer(response_content)):
         element = {}
         for param in re_param.finditer(tag.group(1)):
             element[param.group(1)] = param.group(3)
@@ -110,28 +109,48 @@ def validate_augmented(text, augmented_elements):
     if recovered_text != text:
         raise Exception()
 
+_morphology_cache = {}
+
+def get_morphology_cache(h):
+    return _morphology_cache[h]
+
+def set_morphology_cache(h, text):
+    _morphology_cache[h] = text
+
+def get_hash_from_request_body(request_body):
+    return int(sha1( repr(sorted(frozenset(request_body.items()))).encode("utf-8") ).hexdigest(), 16) % (10 ** 16)
+
 def analyze_text(text, exceptions=None):
     altered_text = sub(u'[„“]', '"', text)
     altered_text = sub(u'–', '-', altered_text)
     altered_text = sub(r'[^\.,?\'"\[\]\(\)!\-\+=0-9:;a-zA-Z' + u'ą-žĄ-Ž' + r']+', ' ', altered_text)
     altered_text = sub(u'(([a-zA-Zą-žĄ-Ž]+)([0-9]+))|(([0-9]+)([a-zA-Zą-žĄ-Ž]+))', r' \2 \3 \5 \6 ', altered_text)
     
-    data = {
+    request_body = {
         'tekstas': altered_text,
         'tipas': 'anotuoti',
-        'pateikti': 'LM',
+        'pateikti': 'M',
         'veiksmas': 'Analizuoti'
     }
 
-    response = post("http://donelaitis.vdu.lt/NLP/nlp.php", data)
+    h = get_hash_from_request_body(request_body)
+    try:
+        response_content = get_morphology_cache(h)
+    except KeyError:
+        response = post("http://donelaitis.vdu.lt/NLP/nlp.php", request_body)
 
-    if response.status_code != 200:
-        raise Exception(response.reason)
+        if response.status_code != 200:
+            raise Exception(response.reason)
 
-    elements = process_response(response.content, exceptions)
+        response_content = response.content.decode("utf-8")
+
+        set_morphology_cache(h, response_content )
+
+    elements = process_response(response_content, exceptions)
     #validate(text, elements)
 
     augmented_elements = augment(text, elements)
     #validate_augmented(text, augmented_elements)
+
 
     return elements, augmented_elements

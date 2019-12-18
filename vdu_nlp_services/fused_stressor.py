@@ -51,11 +51,17 @@ _morph2opt = {
     **{k:k for k in _morph2opt_missing}
 }
 
+def get_cached_word_stress_options(word):
+    return _word_stress_option_cache[word]
+
+def set_cached_word_stress_options(word, options):
+    _word_stress_option_cache[word] = options
+
 def get_word_stress_options(word):
-    try:
-        return _word_stress_option_cache[word]
-    except:
-        if word not in _word_stress_option_cache:
+    if word:
+        try:
+            return get_cached_word_stress_options(word)
+        except KeyError:
             raw_stress_options = filter(None, stress_text(word).split('\n'))
             stress_options = []
             max_opts = 0
@@ -76,8 +82,8 @@ def get_word_stress_options(word):
             if max_opts and len(stress_options) > max_opts:
                 raise Exception()
 
-            _word_stress_option_cache[word] = stress_options
-            
+            set_cached_word_stress_options(word, stress_options)
+
             return stress_options
 
 def _stress_selector(annotated_type, stress_options):

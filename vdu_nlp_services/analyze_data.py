@@ -1,5 +1,7 @@
 
 import sqlite3
+import soap_stressor
+import morphological_analyzer
 from fused_stressor import fused_stress_text, fused_stress_replacents, rebuild_text, localize_stressed_text, compare_replacements
 from soap_stressor import stress_text
 
@@ -57,6 +59,32 @@ exceptions = [
     }
 ]
 
+def create_tables(cursor):
+    queries = [
+        '''CREATE TABLE IF NOT EXISTS "stress_text_cache" (
+            "hash"	INTEGER NOT NULL PRIMARY KEY UNIQUE,
+            "text"	TEXT NOT NULL
+        )'''
+        ,
+        '''CREATE TABLE IF NOT EXISTS "morphology_cache" (
+            "hash"	INTEGER NOT NULL PRIMARY KEY UNIQUE,
+            "text"	TEXT NOT NULL
+        )'''
+    ]
+    
+    for q in queries:
+        cursor.execute(q)
+
+def load_cache(cursor):
+    cursor.execute('SELECT `hash`, `text` FROM `stress_text_cache`')
+    for h, out in cursor:
+        result = {'out': out, 'Info': None, 'Klaida': None}
+        soap_stressor._stress_text_cache[h] = result
+
+    cursor.execute('SELECT `hash`, `text` FROM `morphology_cache`')
+    for h, text in cursor:
+        morphological_analyzer._morphology_cache[h] = text
+
 if __name__ == "__main__":
     '''strings = [
         'Kiti ekspertai sako, kad pasikeitę prekybos keliai ir vidiniai nesutarimai galėjo privesti milžinišką ir galingą civilizaciją prie išnykimo.',
@@ -86,6 +114,28 @@ if __name__ == "__main__":
 
     conn = sqlite3.connect('data3.sqlite.db')
     cursor = conn.cursor()
+    cache_cursor = conn.cursor()
+
+    create_tables(cursor)
+
+    def set_stress_text_cache(h, result):
+        soap_stressor._stress_text_cache[h] = result
+        try:
+            cache_cursor.execute("INSERT INTO stress_text_cache (hash, text) VALUES (?,?)", (h, result['out']))
+        except Exception as e:
+            print(e)
+
+    def set_morphology_cache(h, text):
+        morphological_analyzer._morphology_cache[h] = text
+        try:
+            cache_cursor.execute("INSERT INTO morphology_cache (hash, text) VALUES (?,?)", (h, text))
+        except Exception as e:
+            print(e)
+
+    soap_stressor.set_stress_text_cache = set_stress_text_cache
+    morphological_analyzer.set_morphology_cache = set_morphology_cache
+
+    load_cache(cursor)
 
     for i, exception in enumerate(exceptions):
         cursor.execute('SELECT id FROM articles WHERE `url` = ?', (exception['article_url'],))
@@ -94,11 +144,14 @@ if __name__ == "__main__":
                 exceptions[i]['article_id'] = []
             exceptions[i]['article_id'].append(res[0])
 
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id > 1241')
+    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 0')
 
-    for article_id, index, block, url in cursor:
+    for i, (article_id, index, block, url) in enumerate(cursor):
         if not block:
             continue
+
+        if i % 10 == 0:
+            conn.commit()
 
         exc_ = [e for e in exceptions if article_id in e['article_id']]
         fused_replacements, augmented_elements = fused_stress_replacents(block, exc_)
