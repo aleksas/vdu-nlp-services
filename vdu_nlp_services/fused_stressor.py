@@ -44,7 +44,7 @@ _morph2opt = {
     'es. l.': 'esam.l.', 'būt. l.':'būt.l.', 'būt. k. l.': 'būt.kart.l.', 'būt. d. l.':'būt.d.l.', 'būs. l.':'būs.l.',
     '1 asm.': 'Iasm.', '2 asm.': 'IIasm.', '3 asm.': 'IIIasm.',
     'kiek.': 'kiekin.', 'kelint.' : 'kelintin.',    
-    'veik. r': 'veik.r.', 'neveik. r': 'neveik.r.', 'veik. r.': 'veik.r.',
+    'veik. r': 'veik.r.', 'neveik. r': 'neveik.r.', 'veik. r.': 'veik.r.', 'neveik. r.': 'neveik.r.',
     'tikr. dkt.': ['dktv.', 'T.'],
 
     **{k:k for k in _morph2opt_same},

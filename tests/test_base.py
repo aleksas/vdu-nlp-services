@@ -15,14 +15,11 @@ class SimpleTestCase(TestCase):
     def test_3(self):
         analyze_text(u'Laba diena–draugai!\nKaip\njums -sekasi? Vienas, du, trys.')
 
-    def test_4(self):h
+    def test_4(self):
         analyze_text(u'namo')
 
     def test_5(self):
         analyze_text(u'Šioje vietoje trūksta namo!')
-
-    def test_6(self):
-        analyze_text(u'Einam namo. Nerandu namo.')
 
     def test_6(self):
         analyze_text(u'Einam namo. Nerandu namo.')

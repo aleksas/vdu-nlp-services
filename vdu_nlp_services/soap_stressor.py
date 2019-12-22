@@ -3,6 +3,7 @@
 
 from zeep import Client
 from hashlib import sha1
+from re import sub
 
 _stress_map = {
     '&#x0300;': '`',
@@ -39,6 +40,18 @@ def stress_text(text, version='8.0'):
 
         client = Client('http://donelaitis.vdu.lt/Kirtis/KServisas.php?wsdl')
         result = client.service.kirciuok(request_body)
+
+        if result['Klaida'] and result['Klaida'] == u'Per daug žodžių, sumažinkite žodžių kiekį':
+            splits = sub(r'([a-z][\?!])(\s+[A-Z])', r'\g<1>\n\g<2>', text, count=1).split('\n')
+            index = int(len(splits)/2)
+            splits_a = ' '.join(splits[:index])
+            splits_b = ' '.join(splits[index:])
+            tmp_result = ''
+            for split in [splits_a, splits_b]:
+                tmp_result += stress_text(split, version)
+            result['out'] = tmp_result
+            result['Klaida'] = None
+            result['Info'] = None
 
         for k,v in _stress_map.items():
             result['out'] = result['out'].replace(k, v)
