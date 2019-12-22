@@ -48,11 +48,11 @@ _morph2opt = {
     u'1 asm.': u'Iasm.', u'2 asm.': u'IIasm.', u'3 asm.': u'IIIasm.',
     u'kiek.': u'kiekin.', u'kelint.' : u'kelintin.',    
     u'veik. r': u'veik.r.', u'neveik. r': u'neveik.r.', u'veik. r.': u'veik.r.', u'neveik. r.': u'neveik.r.',
-    u'tikr. dkt.': [u'dktv.', u'T.'],
-
-    **{k:k for k in _morph2opt_same},
-    **{k:k for k in _morph2opt_missing}
+    u'tikr. dkt.': [u'dktv.', u'T.']
 }
+
+_morph2opt.update( {k:k for k in _morph2opt_same} ) 
+_morph2opt.update( {k:k for k in _morph2opt_missing} ) 
 
 def get_cached_word_stress_options(word):
     return _word_stress_option_cache[word]
