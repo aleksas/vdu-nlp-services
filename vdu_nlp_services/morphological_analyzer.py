@@ -10,6 +10,8 @@ from hashlib import sha1
 re_tag = compile(r'<([^<>]+)/>')
 re_param = compile(r'([^ =]+)(="([^"]+)")?')
 
+_validate_response = False
+
 def process_response(response_content, exceptions):
     elements = []
 
@@ -120,7 +122,7 @@ def set_morphology_cache(h, text):
 def get_hash_from_request_body(request_body):
     return int(sha1( repr(sorted(frozenset(request_body.items()))).encode("utf-8") ).hexdigest(), 16) % (10 ** 16)
 
-def analyze_text(text, exceptions=None):
+def analyze_text(text, exceptions=None, include_lemmas=False):
     altered_text = sub(u'[„“]', '"', text)
     altered_text = sub(u'–', '-', altered_text)
     altered_text = sub(r'[^\.,?\'"\[\]\(\)!\-\+=0-9:;a-zA-Z' + u'ą-žĄ-Ž' + r']+', ' ', altered_text)
@@ -129,7 +131,7 @@ def analyze_text(text, exceptions=None):
     request_body = {
         'tekstas': altered_text,
         'tipas': 'anotuoti',
-        'pateikti': 'M',
+        'pateikti': ('LM' if include_lemmas else 'M'),
         'veiksmas': 'Analizuoti'
     }
 
@@ -147,10 +149,11 @@ def analyze_text(text, exceptions=None):
         set_morphology_cache(h, response_content )
 
     elements = process_response(response_content, exceptions)
-    #validate(text, elements)
+    if _validate_response:
+        validate(text, elements)
 
     augmented_elements = augment(text, elements)
-    #validate_augmented(text, augmented_elements)
-
+    if _validate_response:
+        validate_augmented(text, augmented_elements)
 
     return elements, augmented_elements

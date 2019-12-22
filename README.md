@@ -13,7 +13,7 @@ Perform morphological analysis
 ```python
 from vdu_nlp_services import analyze_text
 
-res = analyze_text(u'Laba diena!')
+res = analyze_text(u'Laba diena!', include_lemmas=True)
 print (res)
 ```
 ```sh
