@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/aleksas/vdu-nlp-services.svg?branch=master)](https://travis-ci.org/aleksas/vdu-nlp-services)
+[![PyPi version](https://pypip.in/v/vdu-nlp-services/badge.png)](https://pypi.org/project/vdu-nlp-services/)
 
 # vdu-nlp-services
 
