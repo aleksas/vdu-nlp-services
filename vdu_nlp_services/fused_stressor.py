@@ -1,5 +1,8 @@
-from morphological_analyzer import analyze_text
-from soap_stressor import stress_text
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from .morphological_analyzer import analyze_text
+from .soap_stressor import stress_text
 import re
 
 _word_stress_option_cache = {}
@@ -7,45 +10,45 @@ _stress_re = re.compile(r'\d+. ([^\( \)]+) \(([^\)]+)?\)')
 _stress_re_ex = re.compile(r'[^\( \)]+')
 
 _morph2opt_same = [
-    'V.', 'K.', 'G.', 'N.', 'Vt.', 'Įn.', 'Š.',
-    'jst.', 'vksm.', 'sktv.', 'dlv.', 
-    'sngr.', 'tiesiog. n.',  'nelygin. l.',
-    'įvardž.', 'neįvardž.',
-    'sngr.', 'nesngr.',
-    'reik.',
-    'dll.', 
-    'būdn.',
-    'kuopin.',
-    'dvisk.',
-    'idAA'
+    u'V.', u'K.', u'G.', u'N.', u'Vt.', u'Įn.', u'Š.',
+    u'jst.', u'vksm.', u'sktv.', u'dlv.', 
+    u'sngr.', u'tiesiog. n.', u'nelygin. l.',
+    u'įvardž.', u'neįvardž.',
+    u'sngr.', u'nesngr.',
+    u'reik.',
+    u'dll.', 
+    u'būdn.',
+    u'kuopin.',
+    u'dvisk.',
+    u'idAA'
 ]
 
 _morph2opt_missing = [
-    'teig.', 'neig.', 'teig',
-    'aukšt. l.', 'aukšč. l.', 'aukštėl. l.',
-    'sutr.', 'akronim.','dvisk.',
-    'rom. sk.',
-    'tar. n.', 'liep. n.',
-    'daugin.',
-    'idPS', #post scritum
-    'nežinomas'
+    u'teig.', u'neig.', u'teig',
+    u'aukšt. l.', u'aukšč. l.', u'aukštėl. l.',
+    u'sutr.', u'akronim.', u'dvisk.',
+    u'rom. sk.',
+    u'tar. n.', u'liep. n.',
+    u'daugin.',
+    u'idPS', #post scritum
+    u'nežinomas'
 ]
 
 _morph2opt = {
-    'mot. g.': 'mot.gim.', 'vyr. g.': 'vyr.gim.', 'bev. g.':'bevrd.gim.', 'bendr. g.':'bendr.gim.',
-    'vns.': 'vnsk.', 'dgs.': 'dgsk.',
-    'dkt.': 'dktv.', 'bdv.': 'bdvr.', 'prv.': 'prvks.', 'įv.': 'įvrd.',
-    'bendr.': ['vksm.', 'bendr.'],
-    'pusd.': 'psdlv.',
-    'prl.': 'prln.', 'idprl.': 'prln.',
-    'pad.': 'padlv.',
-    'jng.': 'jngt.', 'idjng.': 'jngt.',
-    'išt.':'ištk.',
-    'es. l.': 'esam.l.', 'būt. l.':'būt.l.', 'būt. k. l.': 'būt.kart.l.', 'būt. d. l.':'būt.d.l.', 'būs. l.':'būs.l.',
-    '1 asm.': 'Iasm.', '2 asm.': 'IIasm.', '3 asm.': 'IIIasm.',
-    'kiek.': 'kiekin.', 'kelint.' : 'kelintin.',    
-    'veik. r': 'veik.r.', 'neveik. r': 'neveik.r.', 'veik. r.': 'veik.r.', 'neveik. r.': 'neveik.r.',
-    'tikr. dkt.': ['dktv.', 'T.'],
+    u'mot. g.': u'mot.gim.', u'vyr. g.': u'vyr.gim.', u'bev. g.': u'bevrd.gim.', u'bendr. g.': u'bendr.gim.',
+    u'vns.': u'vnsk.', u'dgs.': u'dgsk.',
+    u'dkt.': u'dktv.', u'bdv.': u'bdvr.', u'prv.': u'prvks.', u'įv.': u'įvrd.',
+    u'bendr.': [u'vksm.', u'bendr.'],
+    u'pusd.': u'psdlv.',
+    u'prl.': u'prln.', u'idprl.': u'prln.',
+    u'pad.': u'padlv.',
+    u'jng.': u'jngt.', u'idjng.': u'jngt.',
+    u'išt.': u'ištk.',
+    u'es. l.': u'esam.l.', u'būt. l.': u'būt.l.', u'būt. k. l.': u'būt.kart.l.', u'būt. d. l.': u'būt.d.l.', u'būs. l.': u'būs.l.',
+    u'1 asm.': u'Iasm.', u'2 asm.': u'IIasm.', u'3 asm.': u'IIIasm.',
+    u'kiek.': u'kiekin.', u'kelint.' : u'kelintin.',    
+    u'veik. r': u'veik.r.', u'neveik. r': u'neveik.r.', u'veik. r.': u'veik.r.', u'neveik. r.': u'neveik.r.',
+    u'tikr. dkt.': [u'dktv.', u'T.'],
 
     **{k:k for k in _morph2opt_same},
     **{k:k for k in _morph2opt_missing}
