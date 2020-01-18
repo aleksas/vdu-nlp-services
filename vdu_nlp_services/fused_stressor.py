@@ -126,7 +126,7 @@ def localize_stressed_text(stressed_text, augmented_elemetns):
 
     return res
 
-def fused_stress_replacents(text, exceptions=None, stress_selector=_stress_selector):
+def fused_stress_replacements(text, exceptions=None, stress_selector=_stress_selector):
     _, augmented_elements = analyze_text(text, exceptions=exceptions)
     replacements = {}
 
