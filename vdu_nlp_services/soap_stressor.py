@@ -62,9 +62,3 @@ def stress_text(text, version='8.0'):
         set_stress_text_cache(h, result)
 
     return result['out']
-
-if __name__ == '__main__':
-    print (stress_text('Laba diena draugai! Kaip jums sekasi? Vienas, du, trys.'))
-    print (stress_text('namo'))
-    print (stress_text('Šioje vietoje trūksta namo!'))
-    print (stress_text('Einam namo!'))
