@@ -158,7 +158,7 @@ def rebuild_text(augmented_elements, replacements=None):
     return text
 
 def fused_stress_text(text, exceptions=None):
-    replacements, augmented_elements = fused_stress_replacents(text, exceptions)
+    replacements, augmented_elements = fused_stress_replacements(text, exceptions)
     return rebuild_text(augmented_elements, replacements)
 
 def compare_replacements(replacements_maps):
