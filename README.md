@@ -18,7 +18,7 @@ res = analyze_text(u'Laba diena!', include_lemmas=True)
 print (res)
 ```
 ```sh
-[{'word': 'Laba diena', 'lemma': 'laba diena', 'type': 'jst.'}, {'sep': '!'}, {'p': None}]
+([{u'lemma': u'laba diena', u'word': u'Laba diena', u'type': u'jst.'}, {u'sep': u'!'}, {u'p': None}], [{u'lemma': u'laba diena', 'span': (0, 4), u'word': u'Laba', u'type': u'jst.'}, {'other': u' ', 'span': (4, 5)}, {u'lemma': u'laba diena', 'span': (5, 10), u'word': u'diena', u'type': u'jst.'}, {'other': u'!', 'span': (10, 11)}])
 ```
 #### stress_text
 
