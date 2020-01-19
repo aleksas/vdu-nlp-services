@@ -30,7 +30,7 @@ _morph2opt_missing = [
     u'rom. sk.',
     u'tar. n.', u'liep. n.',
     u'daugin.',
-    u'idPS', #post scritum
+    u'idPS', #post scriptum
     u'nežinomas'
 ]
 
@@ -105,27 +105,6 @@ def _stress_selector(annotated_type, stress_options):
         sorted_stressed_words = sorted(stressed_words.items(), key=lambda kv: kv[1], reverse=True)
         return sorted_stressed_words[0]
 
-def localize_stressed_text(stressed_text, augmented_elemetns):
-    offset = 0
-    res = {}
-    for i, ae in enumerate(augmented_elemetns):
-        if 'word' in ae:
-            pattern = ''.join( [ l + r'[`^~]?' for l in ae['word'] ] )
-            m = re.search(pattern, stressed_text[offset:])
-            if m:
-                res[i] = m.group(0) #(m.span()[0] + offset, m.span()[1] + offset)
-                offset += m.span()[1]
-            else:
-                raise Exception()
-        elif 'number' in ae:
-            m = re.search(ae['number'], stressed_text[offset:])
-            if m:
-                offset += m.span()[1]
-            else:
-                raise Exception()
-
-    return res
-
 def fused_stress_replacements(text, exceptions=None, stress_selector=_stress_selector):
     _, augmented_elements = analyze_text(text, exceptions=exceptions)
     replacements = {}
@@ -163,31 +142,3 @@ def fused_stress_text(text, exceptions=None):
     replacements, augmented_elements = fused_stress_replacements(text, exceptions)
     rebuilt_text, mappings = rebuild_text(augmented_elements, replacements)
     return rebuilt_text, mappings
-
-def compare_replacements(replacements_maps):
-    comparison_replacements = {}
-    has_inequalities = False
-    keys = set([])
-    for replacements in replacements_maps:
-        keys = keys.union(set(replacements.keys()))
-    
-    for k in keys:
-        equal = True
-        value = None
-        for replacements in replacements_maps:
-            if k not in replacements:
-                equal = False
-                break
-            if not value:
-                value = replacements[k]
-            if value != replacements[k]:
-                equal = False
-                break
-
-        if equal:
-            comparison_replacements[k] = value
-        else:
-            has_inequalities = True
-            comparison_replacements[k] = '|| ' + ' <> '.join([(replacements[k] if k in replacements else ' ') for replacements in replacements_maps ]) + ' ||'
-    
-    return comparison_replacements, has_inequalities
