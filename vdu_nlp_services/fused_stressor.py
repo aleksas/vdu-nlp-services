@@ -142,9 +142,11 @@ def fused_stress_replacements(text, exceptions=None, stress_selector=_stress_sel
 
 def rebuild_text(augmented_elements, replacements=None):
     text = u''
+    mappings = {}
     for i, element in enumerate(augmented_elements):
         if 'word' in element:
             if replacements and i in replacements:
+                mappings[i] = element['span'], (len(text), len(text) + len(replacements[i]))
                 text += replacements[i]
             else:
                 text += element['word']
@@ -155,11 +157,12 @@ def rebuild_text(augmented_elements, replacements=None):
         else:
             raise NotImplementedError()
     
-    return text
+    return text, mappings
 
 def fused_stress_text(text, exceptions=None):
     replacements, augmented_elements = fused_stress_replacements(text, exceptions)
-    return rebuild_text(augmented_elements, replacements)
+    rebuilt_text, mappings = rebuild_text(augmented_elements, replacements)
+    return rebuilt_text, mappings
 
 def compare_replacements(replacements_maps):
     comparison_replacements = {}
