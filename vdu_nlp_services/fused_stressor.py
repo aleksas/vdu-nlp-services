@@ -121,11 +121,11 @@ def fused_stress_replacements(text, exceptions=None, stress_selector=_stress_sel
 
 def rebuild_text(augmented_elements, replacements=None):
     text = u''
-    mappings = {}
+    mappings = []
     for i, element in enumerate(augmented_elements):
         if 'word' in element:
             if replacements and i in replacements:
-                mappings[i] = element['span'], (len(text), len(text) + len(replacements[i]))
+                mappings.append( (element['span'], (len(text), len(text) + len(replacements[i]))) )
                 text += replacements[i]
             else:
                 text += element['word']
