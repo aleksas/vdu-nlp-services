@@ -3,7 +3,9 @@
 
 from zeep import Client
 from hashlib import sha1
-from re import sub
+import re
+
+_stress_re = re.compile(r'\d+. ([^\( \)]+) \(([^\)]+)?\)')
 
 _stress_map = {
     '&#x0300;': '`',
@@ -30,7 +32,7 @@ def get_request_body(text, version='8.0'):
 def get_hash_from_request_body(request_body):
     return int(sha1( repr(sorted(frozenset(request_body.items()))).encode("utf-8") ).hexdigest(), 16) % (10 ** 16)
 
-def stress_text(text, version='8.0'):  
+def stress_text(text, version='8.0'):
     request_body = get_request_body(text, version='8.0')
     h = get_hash_from_request_body(request_body)
 
@@ -42,7 +44,7 @@ def stress_text(text, version='8.0'):
         result = client.service.kirciuok(request_body)
 
         if result['Klaida'] and result['Klaida'] == u'Per daug žodžių, sumažinkite žodžių kiekį':
-            splits = sub(r'([a-z][\?!])(\s+[A-Z])', r'\g<1>\n\g<2>', text, count=1).split('\n')
+            splits = re.sub(r'([a-z][\?!])(\s+[A-Z])', r'\g<1>\n\g<2>', text, count=1).split('\n')
             index = int(len(splits)/2)
             splits_a = ' '.join(splits[:index])
             splits_b = ' '.join(splits[index:])
