@@ -125,7 +125,7 @@ def get_hash_from_request_body(request_body):
 def analyze_text(text, exceptions=None, include_lemmas=False):
     altered_text = sub(u'[„“]', '"', text)
     altered_text = sub(u'–', '-', altered_text)
-    altered_text = sub(r'[^\.,?\'`~^"\[\]\(\)!\-\+=0-9:;a-zA-Z' + u'ą-žĄ-Ž' + r']+', ' ', altered_text)
+    altered_text = sub(r'[^\.,:;?!\'"\[\]\(\)\-\+=\d\w]+', ' ', altered_text)
     altered_text = sub(u'(([a-zA-Zą-žĄ-Ž]+)([0-9]+))|(([0-9]+)([a-zA-Zą-žĄ-Ž]+))', r' \2 \3 \5 \6 ', altered_text)
     
     request_body = {
