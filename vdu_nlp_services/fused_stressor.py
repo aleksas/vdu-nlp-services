@@ -6,7 +6,7 @@ from .soap_stressor import stress_text
 import re
 
 _word_stress_option_cache = {}
-_stress_re = re.compile(r'\d+. ([^\( \)]+) \(([^\)]+)?\)')
+_stress_re = re.compile(r'\d+. ([^\( \)]+) \((.+)?\)')
 _stress_re_ex = re.compile(r'[^\( \)]+')
 
 _morph2opt_same = [
