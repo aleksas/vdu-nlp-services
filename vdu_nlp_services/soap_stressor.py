@@ -5,7 +5,7 @@ from zeep import Client
 from hashlib import sha1
 import re
 
-_stress_re = re.compile(r'\d+. ([^\( \)]+) \(([^\)]+)?\)')
+_stress_re = re.compile(r'\d+. ([^\( \)]+) \((.+)?\)')
 
 _stress_map = {
     '&#x0300;': '`',
