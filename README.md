@@ -41,8 +41,8 @@ Accentuate word
 from vdu_nlp_services import stress_word
 
 res = stress_word(u'Laba')
-for stress_option in res:
-   print(stress_option[0], list(stress_option[1]))
+for stressed_word, tags in res:
+   print(stressed_word, list(tags))
 ```
 ```sh
 Laba` ['dktv.', 'mot.gim.', 'vnsk.', 'Įn.']
