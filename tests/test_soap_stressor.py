@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase, main
-from vdu_nlp_services import analyze_text, stress_text
+from vdu_nlp_services import analyze_text, stress_text, stress_word
 
 class SimpleTestCase(TestCase):
     def test_1(self):
@@ -17,9 +17,8 @@ class SimpleTestCase(TestCase):
 
     def test_3(self):
         res = [(x[0], list(x[1])) for x in stress_word('toj')]
-        res == ['to~j', ['įvrd.', 'mot.gim.', 'vnsk.', 'Vt.', 'neįvardž.', 'sutrmp.']]
-
-        self.assertEqual(res, ['to~j', ['įvrd.', 'mot.gim.', 'vnsk.', 'Vt.', 'neįvardž.', 'sutrmp.']])
+        expected = [('to~j', ['įvrd.', 'mot.gim.', 'vnsk.', 'Vt.', 'neįvardž.', 'sutrmp.'])]
+        self.assertEqual(res, expected)
 
 if __name__ == '__main__':
     main()
