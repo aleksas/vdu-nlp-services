@@ -13,6 +13,10 @@ _stress_map = {
     '&#x0303;': '~'
 }
 
+stress_tag_replacements = {
+    'Vt(ev).neįvardž.': ['Vt(ev).', 'neįvardž.']
+}
+
 _stress_text_cache = {}
 
 def get_stress_text_cache(h):
@@ -64,3 +68,27 @@ def stress_text(text, version='8.0'):
         set_stress_text_cache(h, result)
 
     return result['out']
+
+def fix_stress_tags(stress_tags):
+    for tag in stress_tags:
+        if tag in stress_tag_replacements:
+            tag_replacement = stress_tag_replacements[tag]
+            if isinstance(tag_replacement, list):
+                for replacement in tag_replacement:
+                    yield replacement
+            else:
+                yield tag_replacement
+        else:
+            yield tag
+
+def stress_word(word, version='8.0'):
+    res = stress_text(word.strip(), version).splitlines()
+
+    for line in res:
+        m = _stress_re.match(line)
+        if m:
+            stressed_word = m.group(1)
+            stress_tags = m.group(2).split(' ') if m.group(2) else []
+            yield stressed_word, fix_stress_tags(stress_tags)
+        else:
+            yield word, []
