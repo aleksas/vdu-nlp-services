@@ -14,7 +14,8 @@ _stress_map = {
 }
 
 stress_tag_replacements = {
-    'Vt(ev).neįvardž.': ['Vt(ev).', 'neįvardž.']
+    'Vt(ev).neįvardž.': ['Vt(ev).', 'neįvardž.'],
+    'Vt(ev).nesngr.': ['Vt(ev).', 'nesngr.']
 }
 
 _stress_text_cache = {}

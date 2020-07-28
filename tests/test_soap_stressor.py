@@ -11,9 +11,15 @@ class SimpleTestCase(TestCase):
         stress_text('Šioje vietoje trūksta namo!')
         stress_text('Einam namo!')
 
-    def test_1(self):
-        stress_text('Laba')
-        stress_text('keliai')
+    def test_2(self):
+        stress_word('Laba')
+        stress_word('keliai')
+
+    def test_3(self):
+        res = [(x[0], list(x[1])) for x in stress_word('toj')]
+        res == ['to~j', ['įvrd.', 'mot.gim.', 'vnsk.', 'Vt.', 'neįvardž.', 'sutrmp.']]
+
+        self.assertEqual(res, ['to~j', ['įvrd.', 'mot.gim.', 'vnsk.', 'Vt.', 'neįvardž.', 'sutrmp.']])
 
 if __name__ == '__main__':
     main()
