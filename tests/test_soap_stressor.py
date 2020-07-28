@@ -11,5 +11,9 @@ class SimpleTestCase(TestCase):
         stress_text('Šioje vietoje trūksta namo!')
         stress_text('Einam namo!')
 
+    def test_1(self):
+        stress_text('Laba')
+        stress_text('keliai')
+
 if __name__ == '__main__':
     main()
