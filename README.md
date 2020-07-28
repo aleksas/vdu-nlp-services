@@ -33,6 +33,25 @@ print (res)
 ```sh
 'Laba` diena`!'
 ```
+#### stress_word
+
+Accentuate word
+
+```python
+from vdu_nlp_services import stress_word
+
+res = stress_word(u'Laba')
+for stress_option in res:
+   print(stress_option[0], list(stress_option[1]))
+```
+```sh
+Laba` ['dktv.', 'mot.gim.', 'vnsk.', 'Įn.']
+La~ba ['dktv.', 'mot.gim.', 'vnsk.', 'Š.']
+Laba` ['bdvr.', 'mot.gim.', 'vnsk.', 'V.', 'neįvardž.']
+Laba` ['bdvr.', 'mot.gim.', 'vnsk.', 'Įn.', 'neįvardž.']
+La~ba ['bdvr.', 'mot.gim.', 'vnsk.', 'Š.', 'neįvardž.']
+La~ba ['bdvr.', 'bevrd.gim.', 'neįvardž.']
+```
 
 ## Install
 
