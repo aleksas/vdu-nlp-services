@@ -18,6 +18,13 @@ stress_tag_replacements = {
     'Vt(ev).nesngr.': ['Vt(ev).', 'nesngr.']
 }
 
+stress_verb_form_tag_replacements = {
+    'dlv.': ['vksm.', 'dlv.'],
+    'padlv.': ['vksm.', 'padlv.'],
+    'psdlv.': ['vksm.', 'psdlv.'],
+    'būdn.': ['vksm.', 'būdn.']
+}
+
 _stress_text_cache = {}
 
 def get_stress_text_cache(h):
@@ -71,9 +78,15 @@ def stress_text(text, version='8.0'):
     return result['out']
 
 def fix_stress_tags(stress_tags):
-    for tag in stress_tags:
+    for i, tag in enumerate(stress_tags):
+        tag_replacement = None
+
         if tag in stress_tag_replacements:
             tag_replacement = stress_tag_replacements[tag]
+        elif i == 0 and tag in stress_verb_form_tag_replacements:
+            tag_replacement = stress_verb_form_tag_replacements[tag]
+
+        if tag_replacement:
             if isinstance(tag_replacement, list):
                 for replacement in tag_replacement:
                     yield replacement
