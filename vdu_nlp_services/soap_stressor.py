@@ -12,6 +12,7 @@ _stress_map = {
     '&#x0301;': '^',
     '&#x0303;': '~'
 }
+_stress_signs = ''.join([v for v in _stress_map.values()])
 
 stress_tag_replacements = {
     'Vt(ev).neįvardž.': ['Vt(ev).', 'neįvardž.'],
@@ -105,4 +106,7 @@ def stress_word(word, version='8.0'):
             stress_tags = m.group(2).split(' ') if m.group(2) else []
             yield stressed_word, fix_stress_tags(stress_tags)
         else:
-            yield word, []
+            if not set(line).difference(set(line + _stress_signs)):
+                yield line, []
+            else:
+                yield word, []
