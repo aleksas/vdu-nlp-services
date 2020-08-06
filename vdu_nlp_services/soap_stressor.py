@@ -76,6 +76,8 @@ def stress_text(text, version='8.0'):
 
         set_stress_text_cache(h, result)
 
+    result['in'] = text
+    
     return result['out']
 
 def fix_stress_tags(stress_tags):
